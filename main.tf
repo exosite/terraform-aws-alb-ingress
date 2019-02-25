@@ -78,7 +78,29 @@ resource "aws_lb_listener_rule" "hosts" {
 }
 
 resource "aws_lb_listener_rule" "hosts_paths" {
-  count        = "${length(var.paths) > 0 && length(var.hosts) > 0 ? var.listener_arns_count : 0}"
+  count        = "${length(var.paths) > 0 && length(var.hosts) > 0 && var.blue_green_deployment == "false" ? var.listener_arns_count : 0}"
+  listener_arn = "${var.listener_arns[count.index]}"
+  priority     = "${var.priority + count.index}"
+
+  action {
+    type             = "forward"
+    target_group_arn = "${local.target_group_arn}"
+  }
+
+  condition {
+    field  = "host-header"
+    values = ["${var.hosts}"]
+  }
+
+  condition {
+    field  = "path-pattern"
+    values = ["${var.paths}"]
+  }
+
+}
+
+resource "aws_lb_listener_rule" "blue_green_hosts_paths" {
+  count        = "${length(var.paths) > 0 && length(var.hosts) > 0 && var.blue_green_deployment == "true" ? var.listener_arns_count : 0}"
   listener_arn = "${var.listener_arns[count.index]}"
   priority     = "${var.priority + count.index}"
 
@@ -98,6 +120,6 @@ resource "aws_lb_listener_rule" "hosts_paths" {
   }
 
   lifecycle {
-    ignore_changes = ["${var.blue_green_deployment == "true" ? "listener_arn" : ""}"]
+    ignore_changes = ["listener_arn"]
   }
 }
