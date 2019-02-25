@@ -96,4 +96,8 @@ resource "aws_lb_listener_rule" "hosts_paths" {
     field  = "path-pattern"
     values = ["${var.paths}"]
   }
+
+  lifecycle {
+    ignore_changes = ["${var.blue_green_deployment == "true" ? "listener_arn" : ""}"]
+  }
 }

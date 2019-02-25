@@ -130,3 +130,9 @@ variable "paths" {
   default     = []
   description = "Path pattern to match (a maximum of 1 can be defined), at least one of hosts or paths must be set"
 }
+
+variable "blue_green_deployment" {
+  type = "string"
+  default = "false"
+  description = "if set to true string, will ignore the listener_arn change"
+}
