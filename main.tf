@@ -75,6 +75,10 @@ resource "aws_lb_listener_rule" "hosts" {
     field  = "host-header"
     values = ["${var.hosts}"]
   }
+
+  lifecycle {
+    ignore_changes = ["action"]
+  }
 }
 
 resource "aws_lb_listener_rule" "hosts_paths" {
